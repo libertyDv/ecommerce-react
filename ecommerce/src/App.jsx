@@ -1,36 +1,28 @@
-import { useState } from 'react'
+
 import { Products } from './components/products'
 import { products as initialProducts } from './mocks/products.json'
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { IS_DEVELOPMENT } from './config';
+import { useFilters } from './hooks/useFilters';
+import { Cart } from './components/Cart';
+import { CartProvider } from './context/cart';
 
 
 function App() {
-  const [products] = useState(initialProducts);
-  const [filters, setFilters] = useState({
-    category: 'all',
-    minPrice: 0
-  })
 
-  const filterProducts = (products) => {
-    return products.filter(product => {
-      return (
-        product.price >= filters.minPrice &&
-        (
-          filters.category == "all" ||
-          product.category == filters.category // si no es all, mostramos los productos que tengan la misma categoria que filters category
-        )
-      )
-    })
-  }
-
-  const filteredProducts = filterProducts(products)
+  const {filterProducts} = useFilters()
+  const filteredProducts = filterProducts(initialProducts)
 
   // <Header changeFilters={setFilters}/>  ----------> se lo envio al header
+  // {IS_DEVELOPMENT && <Footer filters = {filters}/>}  ----------> el footer no se mostraría si esto está en produccion, solo en desarrollo
   return (
-    <>
-    <Header changeFilters={setFilters}/> 
+    <CartProvider>
+      <Header/>
+      <Cart/>
       <Products products={filteredProducts} />
-    </>
+      {IS_DEVELOPMENT && <Footer/>} 
+    </CartProvider>
   )
 }
 
